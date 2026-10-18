@@ -1,89 +1,87 @@
+// Kleine Verbesserungen – die Seite funktioniert auch ohne JavaScript vollständig.
+document.documentElement.classList.add('has-js');
+
 document.addEventListener('DOMContentLoaded', () => {
-  const revealElements = document.querySelectorAll('.reveal');
+  // ----- Mobile Navigation -----
+  const toggle = document.querySelector('.nav-toggle');
+  const nav = document.getElementById('hauptnavigation');
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.14 }
-  );
+  if (toggle && nav) {
+    toggle.hidden = false;
 
-  revealElements.forEach((element) => observer.observe(element));
+    const setOpen = (open) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('is-open', open);
+    };
 
-  const progressBar = document.querySelector('.scroll-progress');
-  const updateScrollProgress = () => {
-    if (!progressBar) return;
-    const scrollTop = window.scrollY;
-    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
-    progressBar.style.width = `${progress}%`;
-  };
-  window.addEventListener('scroll', updateScrollProgress, { passive: true });
-  updateScrollProgress();
-
-  const interactiveCards = document.querySelectorAll('.interactive-card');
-  interactiveCards.forEach((card) => {
-    card.addEventListener('mousemove', (event) => {
-      const rect = card.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const rotateY = ((x / rect.width) - 0.5) * 7;
-      const rotateX = ((y / rect.height) - 0.5) * -7;
-      card.style.transform = `perspective(700px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
     });
 
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
+    nav.addEventListener('click', (event) => {
+      if (event.target.closest('a')) setOpen(false);
     });
-  });
 
-  const yearElement = document.getElementById('year');
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear();
-  }
-
-  const form = document.querySelector('.contact-form');
-  const feedback = document.querySelector('.form-feedback');
-
-  if (!form || !feedback) {
-    return;
-  }
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    if (!form.checkValidity()) {
-      feedback.textContent = 'Bitte fülle alle Felder korrekt aus.';
-      feedback.style.color = '#ff9c9c';
-      return;
-    }
-
-    feedback.textContent = 'Sende Nachricht...';
-    feedback.style.color = '#d8c08e';
-
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { Accept: 'application/json' },
-      });
-
-      if (!response.ok) {
-        throw new Error('Form submit failed');
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
       }
+    });
 
-      feedback.textContent = 'Danke! Deine Nachricht wurde erfolgreich gesendet.';
-      feedback.style.color = '#9be8bf';
-      form.reset();
-    } catch {
-      feedback.textContent =
-        'Senden fehlgeschlagen. Bitte versuche es später erneut oder schreibe direkt an nicogleichmann1@gmail.com.';
-      feedback.style.color = '#ff9c9c';
-    }
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.site-header')) setOpen(false);
+    });
+  }
+
+  // ----- Aktiven Abschnitt in der Navigation markieren -----
+  const navLinks = nav ? [...nav.querySelectorAll('a[href^="#"]')] : [];
+  // Der Startbereich (#top) hat keinen Menüpunkt und hebt die Markierung wieder auf.
+  const sections = [document.getElementById('top')]
+    .concat(navLinks.map((link) => document.querySelector(link.getAttribute('href'))))
+    .filter(Boolean);
+
+  if ('IntersectionObserver' in window && sections.length) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          navLinks.forEach((link) => {
+            const active = link.getAttribute('href') === `#${entry.target.id}`;
+            if (active) link.setAttribute('aria-current', 'true');
+            else link.removeAttribute('aria-current');
+          });
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px' }
+    );
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  // ----- E-Mail-Adresse kopieren -----
+  const copyButton = document.querySelector('.copy-email');
+  const copyFeedback = document.querySelector('.copy-feedback');
+
+  if (copyButton && copyFeedback && navigator.clipboard && window.isSecureContext) {
+    copyButton.hidden = false;
+    let resetTimer;
+
+    copyButton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(copyButton.dataset.email);
+        copyFeedback.textContent = 'Adresse kopiert.';
+      } catch {
+        copyFeedback.textContent = 'Kopieren nicht möglich – bitte die Adresse oben verwenden.';
+      }
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        copyFeedback.textContent = '';
+      }, 4000);
+    });
+  }
+
+  // ----- Jahr im Footer -----
+  document.querySelectorAll('.current-year').forEach((element) => {
+    element.textContent = String(new Date().getFullYear());
   });
 });
