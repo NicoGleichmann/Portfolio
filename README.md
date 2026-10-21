@@ -1,7 +1,7 @@
 # nicogleichmann.de
 
 Persönliche Website von Nico Gleichmann – Hauptseite der Domain `nicogleichmann.de`.
-Die Business-Seite **Lumio** läuft getrennt unter `automatisierung.nicogleichmann.de` (Repo `Business_Website`) und ist von hier aus verlinkt.
+Die Business-Seite (KI-Automatisierung & Websites) läuft getrennt unter `automatisierung.nicogleichmann.de` (Repo `Business_Website`) und ist von hier aus verlinkt.
 
 - **Technik:** reines HTML, CSS und JavaScript – kein Build-Schritt, keine Abhängigkeiten
 - **Datenschutzfreundlich:** keine Cookies, kein Tracking, keine externen Dienste, Schriften lokal
@@ -12,7 +12,7 @@ Die Business-Seite **Lumio** läuft getrennt unter `automatisierung.nicogleichma
 | Datei / Ordner          | Inhalt                                                             |
 | ----------------------- | ------------------------------------------------------------------ |
 | `index.html`            | Startseite mit allen Texten                                        |
-| `impressum.html`        | Impressum (gleiche Angaben wie bei Lumio)                          |
+| `impressum.html`        | Impressum (gleiche Angaben wie auf der Business-Seite)             |
 | `datenschutz.html`      | Datenschutzerklärung                                               |
 | `404.html`              | Fehlerseite (Cloudflare zeigt sie automatisch an)                  |
 | `styles.css`            | Gestaltung; Farben und Schriften als Variablen ganz oben           |
@@ -50,7 +50,7 @@ Einmalig, wenn die Nameserver von `nicogleichmann.de` bei INWX schon auf Cloudfl
 
 Ab dann geht jede Änderung auf `main` automatisch nach ein bis zwei Minuten online.
 
-Für Lumio legst du im selben Konto ein **zweites** Pages-Projekt mit dem Repo `Business_Website` an
+Für die Business-Seite legst du im selben Konto ein **zweites** Pages-Projekt mit dem Repo `Business_Website` an
 (Domain `automatisierung.nicogleichmann.de`, Einstellungen siehe README dort).
 
 ### Wichtig für den Datenschutz
